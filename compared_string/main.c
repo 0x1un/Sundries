@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 int cmpstr(const char* s1, const char* s2);
 void strNcpy(char* dst, const char* src, int n);
 int stringlen(char* str);
@@ -61,8 +62,10 @@ void matchSubString(char* s1, char* s2)
 		/* printf("%s - %s\n", temp_str, s1); // a test */
 		if( cmpstr(s1, temp_str) == 0 )
 		{
-			printf("%d %d ", count, count+stringlen(temp_str)-1);
+		
+			printf("%d,%d", count, count+stringlen(temp_str)-1);
 			count = count + (len1 - 1);
+
 		}
 
 	}
