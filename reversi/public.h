@@ -1,2 +1,0 @@
-#define SIZE 6
-
