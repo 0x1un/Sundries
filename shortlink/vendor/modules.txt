@@ -1,2 +1,4 @@
 # github.com/gorilla/mux v1.7.3
 github.com/gorilla/mux
+# gopkg.in/validator.v2 v2.0.0-20190827175613-1a84e0480e5b
+gopkg.in/validator.v2

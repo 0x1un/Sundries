@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/go-playground/validator"
 	"github.com/gorilla/mux"
+	"gopkg.in/validator.v2"
 )
 
 type App struct {
@@ -22,8 +23,14 @@ type ShortlinkResp struct {
 	shortLink string `json:"shortlink"`
 }
 
+func (a *App) Initalize() {
+	log.SetFlags(log.LstdFlags)
+	a.Router = mux.NewRouter()
+	a.initalizeRoutes()
+}
+
 func (a *App) initalizeRoutes() {
-	a.Router.HandleFunc("/api/shorten", a.createShortlink).Methods("POST")
+	a.Router.HandleFunc("/api/shorten", a.createShortlink).Methods("POST") // post method
 	a.Router.HandleFunc("/api/info", a.getShortlinkInfo).Methods("GET")
 	a.Router.HandleFunc("/{shortlink:[a-zA-Z0-9]{1,10}}", a.redirect).Methods("GET")
 
@@ -44,13 +51,22 @@ func (a *App) createShortlink(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) getShortlinkInfo(w http.ResponseWriter, r *http.Request) {
-
+	vals := r.URL.Query()
+	s := vals.Get("shortlink")
+	fmt.Printf("%v\n", s)
 }
 
 func (a *App) redirect(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Printf("%v\n", vars["shortlink"])
+}
 
+func (a *App) Run(addr string) {
+	log.Fatal(http.ListenAndServe(addr, a.Router))
 }
 
 func main() {
-
+	a := App{}
+	a.Initalize()
+	a.Run(":8080")
 }
