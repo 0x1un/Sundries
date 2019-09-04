@@ -7,7 +7,7 @@ type Error interface {
 
 type StatusError struct {
 	Code int
-	Err  Error
+	Err  error
 }
 
 func (se StatusError) Error() string {

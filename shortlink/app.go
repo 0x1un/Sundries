@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"gopkg.in/validator.v2"
+	validator "gopkg.in/validator.v2"
 )
 
 type App struct {
@@ -15,12 +15,12 @@ type App struct {
 }
 
 type ShortenReq struct {
-	url      string `json:"url" validate:"nonzero"`
-	exp_time int64  `json:"expiration_in_minutes" validate:"min=0"`
+	Url      string `json:"url" validate:"nonzero"`
+	Exp_time int64  `json:"expiration_in_minutes" validate:"min=0"`
 }
 
 type ShortlinkResp struct {
-	shortLink string `json:"shortlink"`
+	ShortLink string `json:"shortlink"`
 }
 
 func (a *App) Initalize() {
@@ -45,11 +45,11 @@ func (a *App) createShortlink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := validator.Validate(req); err != nil {
-		respondWithError(w, StatusError{http.StatusBadRequest, fmt.Errorf("validate parameters failed %v", r.Body)})
+		respondWithError(w, StatusError{http.StatusBadRequest, fmt.Errorf("validate parameters failed %v", req)})
 		return
 	}
 	defer r.Body.Close()
-	fmt.Printf("%v\n", req)
+	fmt.Printf("ShortenReq: %v\n", req)
 }
 
 func (a *App) getShortlinkInfo(w http.ResponseWriter, r *http.Request) {
@@ -58,6 +58,7 @@ func (a *App) getShortlinkInfo(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("%v\n", s)
 }
 
+// 重定向操作，获取shortlink
 func (a *App) redirect(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Printf("%v\n", vars["shortlink"])
@@ -82,10 +83,4 @@ func respondWithJSON(w http.ResponseWriter, statusCode int, payload interface{})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	w.Write(resp)
-}
-
-func main() {
-	a := App{}
-	a.Initalize()
-	a.Run(":8080")
 }
