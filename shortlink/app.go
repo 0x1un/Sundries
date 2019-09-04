@@ -40,10 +40,12 @@ func (a *App) createShortlink(w http.ResponseWriter, r *http.Request) {
 	// convert the long links to short links
 	var req ShortenReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondWithError(w, StatusError{http.StatusBadRequest, fmt.Errorf("parse parameters failed %v", r.Body)})
 		return
 	}
 
 	if err := validator.Validate(req); err != nil {
+		respondWithError(w, StatusError{http.StatusBadRequest, fmt.Errorf("validate parameters failed %v", r.Body)})
 		return
 	}
 	defer r.Body.Close()
@@ -63,6 +65,16 @@ func (a *App) redirect(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(addr, a.Router))
+}
+
+func respondWithError(w http.ResponseWriter, err error) {
+	switch e := err.(type) {
+	case Error:
+		log.Printf("HTTP %d - %s", e.Status(), e)
+		respondWithJSON(w, e.Status(), e.Error())
+	default:
+		respondWithJSON(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+	}
 }
 
 func main() {
